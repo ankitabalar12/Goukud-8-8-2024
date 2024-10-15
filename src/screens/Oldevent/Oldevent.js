@@ -388,7 +388,8 @@ export default function Oldevent({ navigation }) {
                     <View>
                         <Text style={{ color: '#22242A', fontSize: 22, fontFamily: 'BebasNeue-Regular' }}>
                             {/* கோவில் நிர்வாகி */}
-                             கோவில் நிர்வாகி
+                             {/* கோவில் நிர்வாகி */}
+                             பழைய  நிகழ்வுகள்
                         </Text>
                     </View>
                     <View style={{ height: 20 }}></View>

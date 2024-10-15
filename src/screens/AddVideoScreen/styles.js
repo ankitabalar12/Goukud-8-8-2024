@@ -113,7 +113,7 @@ export const styles = StyleSheet.create({
     },
     heightview:{
         height:1.5,
-        width:200,
+        width:180,
         backgroundColor:"#AEAFB0",
          marginTop:'auto'
     },

@@ -10,7 +10,7 @@ const ManageVideo = ({ navigation }) => {
     const [gallary, setgallary] = useState([])
     const [loading, setLoading] = useState(false);
     const [iscontentmanager, setiscontentmanager] = useState('0')
-    const [videoUrls, setVideoUrls] = useState('')
+    const [videoUrls, setVideoUrls] = useState([])
     const webviewRef = useRef(null);
     const webViewRef = useRef(null);
     useEffect(() => {
@@ -142,13 +142,15 @@ const ManageVideo = ({ navigation }) => {
 
                 if (json.data && json.data.length > 0) {
                     // Flatten URLs if needed (you might not need this if `url` is a single value)
-                    const allUrls = json.data.map(video => video.url);
+                    // const allUrls = json.data.map(video => video.url);
+                    //const allUrls = json.data.flatMap(video => video.url.split(','));
+                    //console.log('allUrls ---------------',allUrls)
 
-                    setVideoUrls(allUrls); // Save all video URLs to state
-                    console.log('Video URLs--------sdfsdf----------:', allUrls);
+                    setVideoUrls(json.data); // Save all video URLs to state
+                    console.log('Video URLs--------sdfsdf----------:', json.data);
                 } else {
                     console.log('No video data found in response');
-                    setVideoUrls([]); // Clear video URLs if no data found
+                    //  setVideoUrls([]); // Clear video URLs if no data found
                 }
             } else {
                 console.log('No user data found in AsyncStorage.');
@@ -181,10 +183,27 @@ const ManageVideo = ({ navigation }) => {
     const addnavi = () => {
         navigation.navigate('AddVideo')
     }
+
+    const convertShortsToEmbedUrl = (url) => {
+        const shortsRegex = /https?:\/\/(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/;
+        const match = url.match(shortsRegex);
+        if (match && match[1]) {
+            return `https://www.youtube.com/embed/${match[1]}`;
+        }
+        // If not a shorts URL, handle standard YouTube URLs
+        const standardRegex = /https?:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/;
+        const standardMatch = url.match(standardRegex);
+        if (standardMatch && standardMatch[1]) {
+            return `https://www.youtube.com/embed/${standardMatch[1]}`;
+        }
+        // If already an embed URL or other format, return as is
+        return url;
+    };
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
             <StatusBar animated={true} backgroundColor="#ffffff" />
-            <ScrollView>
+            
                 <View style={{ margin: 20 }}>
                     <View style={{ height: 30 }}></View>
                     <View style={{ flexDirection: 'row', width: '100%' }}>
@@ -254,7 +273,7 @@ const ManageVideo = ({ navigation }) => {
 
                     {/* </View> */}
                     <View style={{ height: 10 }}></View>
-                    <View style={{ height: 300, width: '100%', }}>
+                
                         {/* {videoUrls && Array.isArray(videoUrls) && videoUrls.length > 0 ? (
                             videoUrls.map((video, index) => (
                                 <View key={index} style={{ marginVertical: 10 }}>
@@ -287,56 +306,78 @@ const ManageVideo = ({ navigation }) => {
                         ) : (
                             <Text style={{ textAlign: 'center', marginTop: 20 }}>No Video found</Text>
                         )} */}
-                        {videoUrls && Array.isArray(videoUrls) && videoUrls.length > 0 ? (
-                            videoUrls.map((url, index) => (
-                                <View key={index} style={{ marginVertical: 10 }}>
-                                    <View style={{ height: 300, width: '100%', alignSelf: 'center' }}>
-                                         <WebView
-                                                key={index}
-                                                style={styles.video}
-                                                javaScriptEnabled={true}
-                                                mediaPlaybackRequiresUserAction={true}
-                                                allowsInlineMediaPlayback={true}
-                                                domStorageEnabled={true}
-                                                allowFileAccess={false}
-                                                startInLoadingState={true}
-                                                source={{ uri: url }} // Directly use the URL here
-                                                allowsFullscreenVideo={true}
-                                            /> 
-                                        {/* {url ? (
-                                            <WebView
-                                                key={index}
-                                                style={styles.video}
-                                                javaScriptEnabled={true}
-                                                mediaPlaybackRequiresUserAction={true}
-                                                allowsInlineMediaPlayback={true}
-                                                domStorageEnabled={true}
-                                                allowFileAccess={false}
-                                                startInLoadingState={true}
-                                                source={{ uri: url }}
-                                                allowsFullscreenVideo={true}
-                                            />
-                                        ) : (
-                                            <Text style={{ textAlign: 'center', color: '#ff0000' }}>No video URL available</Text>
-                                        )} */}
+                            <ScrollView>
+                                <View>
+                           {videoUrls && videoUrls.length > 0 ? (
+                            videoUrls.map((data, index) => (
+                                        <View key={data.id} style={{height:300, width:'95%',marginTop:9}}>
+                                          <WebView
+                                            key={index}
+                                            // style={styles.video}
+                                            javaScriptEnabled={true}
+                                            mediaPlaybackRequiresUserAction={true}
+                                            allowsInlineMediaPlayback={true}
+                                            domStorageEnabled={true}
+                                            allowFileAccess={false}
+                                            startInLoadingState={true}
+                                            source={{ uri: data.url }}
+                                            allowsFullscreenVideo={true}
+                                        />
                                         <View style={styles.overlay}>
-                                            <View style={styles.overlay}>
-                                                <Text style={[styles.title, { color: '#fff' }]}>{url.title}</Text>
-                                                <Text style={[styles.timestamp, { color: '#fff' }]}>Updated {datetime(url.created_date)}</Text>
-                                            </View>
+                                            <Text style={[styles.title, { color: '#fff' }]}>{data.title}</Text>
+                                            <Text style={[styles.timestamp, { color: '#fff' }]}>
+                                                Updated {datetime(data.created_date)}
+                                            </Text>
                                         </View>
-                                    </View>
+                                        {/* <Text>dfdjhfdjfjsdfhj</Text> */}
                                 </View>
                             ))
                         ) : (
                             <Text style={{ textAlign: 'center', marginTop: 20 }}>No Video found</Text>
                         )}
+                        </View>
+                        <View style={{marginTop:'100%'}}></View>
+                        </ScrollView>
+                        {/* {videoUrls && videoUrls.length > 0 ? (
+                            videoUrls.map((data,index) => (
+                                <ScrollView>
+                                <View key={data.id} style={styles.videoContainer}>
+                                    <View style={styles.videoWrapper}>
+                                        <WebView
+                                         key={index}
+                                            style={styles.video}
+                                            javaScriptEnabled={true}
+                                            mediaPlaybackRequiresUserAction={true}
+                                            allowsInlineMediaPlayback={true}
+                                            domStorageEnabled={true}
+                                            allowFileAccess={false}
+                                            startInLoadingState={true}
+                                            source={{ uri: data.url }}
+                                            allowsFullscreenVideo={true}
+                                        />
+
+
+                                        <View style={styles.overlay}>
+                                            <Text style={[styles.title, { color: '#fff' }]}>{data.title}</Text>
+                                            <Text style={[styles.timestamp, { color: '#fff' }]}>
+                                                Updated {datetime(data.created_date)}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </View>
+                                </ScrollView>
+                            ))
+                        ) : (
+                            <Text style={{ textAlign: 'center', marginTop: 20 }}>No Video found</Text>
+                        )}  */}
+
+                        {/*  */}
                         {/* {loading ?
 
                             <ActivityIndicator size="large" color="#1976d2" animating={loading} />
 
                             : null} */}
-                    </View>
+                
                     {/* <FlatList
                         data={gallary}
                         keyExtractor={(item) => item.id}
@@ -396,13 +437,13 @@ const ManageVideo = ({ navigation }) => {
                     </TouchableOpacity> */}
 
                 </View>
-            </ScrollView>
+          
             {loading ?
                 <View style={styles.spinner}>
                     <ActivityIndicator size="large" color="#1976d2" animating={loading} />
                 </View>
                 : null}
-            <View style={{ marginTop: '50%' }}></View>
+            {/* <View style={{ marginTop: '50%' }}></View> */}
         </SafeAreaView>
     )
 }

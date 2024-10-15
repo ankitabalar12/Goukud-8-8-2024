@@ -157,14 +157,24 @@ const ForgetPassword = ({ navigation }) => {
                             {
                                 text: 'OK',
                                 onPress: () => {
-                                    navigation.navigate('Login');
+                                    // navigation.navigate('VerifyPasswordOtp',{});
+                                    navigation.navigate('VerifyPasswordOtp', { mobileNumber });
+                                    console.log('mobileNumber ---------',mobileNumber)
                                     setMobileNumber('');
                                 }
                             }
                         ]
                     );
                 } else {
-                    Alert.alert('Error----', json.ResponseMsg);
+                    const errorMsg = json.ResponseMsg || 'This mobile number is not registered.';
+    
+                    if (errorMsg === 'User not registered') {
+                        // Show an alert if the user is not registered
+                        Alert.alert('Invalid', 'This mobile number is not registered.');
+                    } else {
+                        // Handle other errors
+                        Alert.alert('Invalid', errorMsg);
+                    }
                 }
             } catch (err) {
                 console.log(err);
@@ -258,7 +268,7 @@ const ForgetPassword = ({ navigation }) => {
                 <TextInput
                     onChangeText={(value) => setMobileNumber(value)}
                     value={mobileNumber}
-                    maxLength={10}
+                    keyboardType="phone-pad" 
                     style={styles.textInput}
                     placeholder="Enter your Mobile Number"
                     placeholderTextColor="#FFFFFF"

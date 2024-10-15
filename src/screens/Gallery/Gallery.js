@@ -16,13 +16,13 @@ export default function Gallery({ navigation }) {
 
     useEffect(async () => {
         // navigation.addListener('focus', async () => {
-            const result = await AsyncStorage.getItem('logindata')
-            // //console.log(result)
-            console.log('gallery page==========')
-            const screenData = JSON.parse(result)
-            // //console.log('screenData', screenData)
-            gettemp()
-            getadvertisement()
+        const result = await AsyncStorage.getItem('logindata')
+        // //console.log(result)
+
+        const screenData = JSON.parse(result)
+        console.log('screenData', screenData)
+        gettemp()
+        getadvertisement()
         // })
     }, [])
 
@@ -52,9 +52,8 @@ export default function Gallery({ navigation }) {
         })
             .then((res) => res.json())
             .then(async (json) => {
-                // //console.log('getadvertisement data ===>>', json)
+                console.log('getadvertisement data ===>>', json)
                 if (json.success == true) {
-
                     setadver(json.data)
 
                 }
@@ -62,46 +61,109 @@ export default function Gallery({ navigation }) {
     }
 
 
-    const gettemp = () => {
+    // const gettemp = () => {
+    //     setLoading(true);
+    //     const newarray = [];
+    //     fetch(global.url + 'gettemples', {
+    //         method: 'POST',
+    //         headers: {
+    //             Accept: 'application/json',
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             kulam_id: '0'
+    //         })
+    //     }).then((res) => res.json())
+    //         .then((json) => {
+    //             console.log('=========>>>>>>>>>>>>>>>>> gettemples ', json)
+    //             var count = Object.keys(json.data).length;
+    //             let staticIndex = 0;
+    //             for (let i = 0; i < count; i++) {
+    //                 if (json.data[i].name !== global.templename) {
+    //                     console.log('=== >>>>>>>>>>>>>>>>>>> ', json.data[i].name, '!==', global.templename)
+    //                     global.bb = json.data[i].image.split(',')
+    //                     newarray.push({ type: 'item', city: json.data[i].city, district: json.data[i].district, history: json.data[i].history, name: json.data[i].name, kulamname: json.data[i].kulamname, image: global.bb[0], images: json.data[i].image, id: json.data[i].id, updated_at: json.data[i].updated_at }); // Create your array of data
+    //                     if (i % 2 === 0 && staticIndex < staticData.length) {
+    //                         newarray.push(staticData[staticIndex]);
+    //                         staticIndex++;
+    //                     }
+    //                 }
+    //             }
+    //             settemp(newarray)
+    //             console.log('---------------------------', newarray)
+    //             setsearchtemp(newarray);
+    //             console.log('gettemples => ', newarray)
+    //             setLoading(false)
+    //         })
+    //         .catch((err) => {
+    //             //console.log(err)
+    //         })
+    //         .finally(() => {
+    //             setLoading(false);
+    //         });
+    // }
+
+    const gettemp = async () => {
         setLoading(true);
-        const newarray = [];
-        fetch(global.url + 'gettemples', {
+        const newArray = [];
+        
+        try {
+          const response = await fetch(`${global.url}gettemples`, {
             method: 'POST',
             headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                kulam_id: '0'
-            })
-        }).then((res) => res.json())
-            .then((json) => {
-                //console.log('========= gettemples ', json)
-                var count = Object.keys(json.data).length;
-                let staticIndex = 0;
-                for (let i = 0; i < count; i++) {
-                    if (json.data[i].name !== global.templename) {
-                        //console.log('=== >>> ', json.data[i].name, '!==', global.templename)
-                        global.bb = json.data[i].image.split(',')
-                        newarray.push({ type: 'item', city: json.data[i].city, district: json.data[i].district, history: json.data[i].history, name: json.data[i].name, kulamname: json.data[i].kulamname, image: global.bb[0], images: json.data[i].image, id: json.data[i].id, updated_at: json.data[i].updated_at }); // Create your array of data
-                        if (i % 2 === 0 && staticIndex < staticData.length) {
-                            newarray.push(staticData[staticIndex]);
-                            staticIndex++;
-                        }
-                    }
-                }
-                settemp(newarray)
-                setsearchtemp(newarray);
-                //console.log('gettemples => ', newarray)
-                setLoading(false)
-            })
-            .catch((err) => {
-                //console.log(err)
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }
+              kulam_id: '0',
+            }),
+          });
+    
+          const json = await response.json();
+          console.log('=========>>>>>>>>>>>>>>>>> gettemples ', json);
+    
+          if (!json.success) {
+            Alert.alert('Error', json.message || 'Failed to fetch temples.');
+            return;
+          }
+    
+          const temples = json.data || [];
+          temples.forEach((item, index) => {
+            if (item.name !== global.templename) {
+              const imagesArray = item.image ? item.image.split(',') : [];
+              const firstImage = imagesArray[0] || '';
+    
+              newArray.push({
+                type: 'item',
+                city: item.city || '',
+                district: item.district || '',
+                history: item.history || '',
+                name: item.name || '',
+                kulamname: item.kulamname || '',
+                image: firstImage,
+                images: item.image || '',
+                id: item.id.toString(),
+                updated_at: item.updated_at || null,
+              });
+    
+              // Insert static data every 2 items
+              if (index % 2 === 0 && staticData && staticData.length > 0) {
+                newArray.push(staticData[index % staticData.length]);
+              }
+            }
+          });
+    
+          settemp(newArray);
+          setsearchtemp(newArray);
+          console.log('gettemples => ', newArray);
+        } catch (error) {
+          console.error('Error fetching temples: ', error);
+          Alert.alert('Error', 'An error occurred while fetching temples.');
+        } finally {
+          setLoading(false);
+        }
+      };
+    
 
     // const gettemp = () => {
     //     setLoading(true)
@@ -132,20 +194,55 @@ export default function Gallery({ navigation }) {
 
     // }
 
+    // const searchFunction = (text) => {
+    //     if (text) {
+    //         const newData = searchtemp.filter(function (item) {
+    //             return item.name && item.name.toUpperCase().includes(text.toUpperCase())
+    //         });
+    //         settemp(newData);
+    //         setSearch(text);
+    //     } else {
+    //         gettemp();
+    //         setSearch(text);
+    //     }
+    // };
 
     const searchFunction = (text) => {
         if (text) {
-            const newData = searchtemp.filter(function (item) {
-                return item.kulamname && item.kulamname.toUpperCase().includes(text.toUpperCase())
+            const newData = searchtemp.filter((item) => {
+                // Ensure item.name exists and is a string
+                return (
+                    (
+                        item.kulamname &&
+                        typeof item.kulamname === 'string' &&
+                        item.kulamname.toUpperCase().includes(text.toUpperCase())
+                    ) ||
+                    (
+                        item.district &&
+                        typeof item.district === 'string' &&
+                        item.district.toUpperCase().includes(text.toUpperCase())
+                    ) ||
+                    (
+                        item.city &&
+                        typeof item.city === 'string' &&
+                        item.city.toUpperCase().includes(text.toUpperCase())
+                    ) ||
+                    (
+                        item.history &&
+                        typeof item.history === 'string' &&
+                        item.history.toUpperCase().includes(text.toUpperCase())
+                    )
+                );
+                
             });
             settemp(newData);
             setSearch(text);
         } else {
-            gettemp();
+            // If search text is empty, reset to original data
+            settemp(searchtemp);
             setSearch(text);
         }
     };
-
 
     const datetime = (value) => {
 
@@ -225,7 +322,7 @@ export default function Gallery({ navigation }) {
                             <FastImage style={{ width: 20, height: 20, }} source={require('../../../assets/images/backPlain.png')} />
                         </TouchableOpacity>
                         <View style={{ width: '60%' }}>
-                            <Text style={{ color: '#22242A',fontSize: 14,textAlign: 'center',fontFamily: 'Montserrat-Bold'}}>Gounder Kudumbam</Text>
+                            <Text style={{ color: '#22242A', fontSize: 14, textAlign: 'center', fontFamily: 'Montserrat-Bold' }}>Gounder Kudumbam</Text>
                         </View>
                         <TouchableOpacity style={{ width: '20%' }} onPress={() => navigation.navigate('Aboutus')}>
                             <FastImage style={styles.iconper} source={{ uri: 'https://www.app.gounderkudumbam.com/admin/public/images/' + global.logo }} />
@@ -278,14 +375,30 @@ export default function Gallery({ navigation }) {
                         </View>
                     </View>
 
-                    <FlatList
+                    {/* <FlatList
                         data={temp}
                         keyExtractor={(item) => item.id}
                         renderItem={renderItem}
                         ItemSeparatorComponent={renderSeparator}
 
-                    />
-
+                    /> */}
+                    {loading ? (
+                        <ActivityIndicator size="large" color="#1976d2" style={styles.loader} />
+                    ) : (
+                        // FlatList to display temple data
+                        <FlatList
+                            data={temp}
+                            keyExtractor={(item) => item.id}
+                            renderItem={renderItem}
+                            ItemSeparatorComponent={renderSeparator}
+                            contentContainerStyle={styles.listContent}
+                            ListEmptyComponent={
+                                <View style={styles.emptyContainer}>
+                                    <Text style={styles.emptyText}>No temples found.</Text>
+                                </View>
+                            }
+                        />
+                    )}
 
                     {/* <View style={{
                         flex: 1,
@@ -364,11 +477,11 @@ export default function Gallery({ navigation }) {
                     </View> */}
                 </View>
             </ScrollView>
-            {loading ?
+            {/* {loading ?
                 <View style={styles.spinner}>
                     <ActivityIndicator size="large" color="#1976d2" animating={loading} />
                 </View>
-                : null}
+                : null} */}
         </SafeAreaView>
     )
 }

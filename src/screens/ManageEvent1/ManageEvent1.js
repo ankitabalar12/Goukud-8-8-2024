@@ -4,12 +4,14 @@ import { styles } from './styles';
 import FastImage from 'react-native-fast-image';
 import AsyncStorage from "@react-native-community/async-storage";
 import { AppOpenAd, InterstitialAd, RewardedAd, BannerAdSize, BannerAd, TestIds } from 'react-native-google-mobile-ads';
+import { ActivityIndicator } from 'react-native';
 
 export default function ManageEvent1({ navigation }) {
-    const [loding, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [tempdata, settempdata] = useState([])
     const [oldtempdata, setoldtempdata] = useState([])
     const [data, setdata] = useState('')
+   
     useEffect(() => {
         // navigation.addListener('focus', async () => {
         console.log('manageevent one page =======')
@@ -46,7 +48,7 @@ export default function ManageEvent1({ navigation }) {
         })
             .then((res) => res.json())
             .then(async (json) => {
-                //console.log('json== getnewevent =>> ', json)
+                console.log('json== getnewevent =>> ', json)
                 if (json.success == true) {
 
                     let staticIndex = 0;
@@ -62,15 +64,52 @@ export default function ManageEvent1({ navigation }) {
                     alert(json.message)
                 }
                 setLoading(false)
-                //console.log('newarraynewarray ==> ', newarray)
+                console.log('newarraynewarray ==> ', newarray)
 
             })
     }
+    // const getoldevent = async () => {
+    //     const newarray = [];
+    //     const result = await AsyncStorage.getItem('logindata')
+    //     const screenData = JSON.parse(result)
+    //     setLoading(true)
+    //     fetch(global.url + 'getoldevent', {
+    //         method: 'POST',
+    //         headers: {
+    //             Accept: 'application/json',
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             temple_id: screenData.temple,
+    //         })
+    //     })
+    //         .then((res) => res.json())
+    //         .then(async (json) => {
+    //             //console.log('json== getnewevent =>> ', json)
+    //             if (json.success == true) {
+
+    //                 let staticIndex = 0;
+    //                 for (let i = 0; i < json.data.length; i++) {
+    //                     newarray.push({ type: 'item', name: json.data[i].name, created_at: json.data[i].created_at, date_time: json.data[i].date_time, id: json.data[i].id, image: json.data[i].image, images: json.data[i].images, name: json.data[i].name, temple: json.data[i].temple, updated_at: json.data[i].updated_at, description: json.data[i].description });
+    //                     if (i % 2 === 0 && staticIndex < staticData.length) {
+    //                         newarray.push(staticData[staticIndex]);
+    //                         staticIndex++;
+    //                     }
+    //                 }
+    //                 setoldtempdata(newarray)
+    //             } else {
+    //                 alert(json.message)
+    //             }
+    //             setLoading(false)
+
+    //         })
+    // }
     const getoldevent = async () => {
         const newarray = [];
-        const result = await AsyncStorage.getItem('logindata')
-        const screenData = JSON.parse(result)
-        setLoading(true)
+        const result = await AsyncStorage.getItem('logindata');
+        const screenData = JSON.parse(result);
+        setLoading(true);
+
         fetch(global.url + 'getoldevent', {
             method: 'POST',
             headers: {
@@ -79,29 +118,45 @@ export default function ManageEvent1({ navigation }) {
             },
             body: JSON.stringify({
                 temple_id: screenData.temple,
-            })
+            }),
         })
             .then((res) => res.json())
             .then(async (json) => {
-                //console.log('json== getnewevent =>> ', json)
-                if (json.success == true) {
+                // Log the entire JSON response
+                console.log('Response from getoldevent:', json);
 
+                if (json.success) {
                     let staticIndex = 0;
                     for (let i = 0; i < json.data.length; i++) {
-                        newarray.push({ type: 'item', name: json.data[i].name, created_at: json.data[i].created_at, date_time: json.data[i].date_time, id: json.data[i].id, image: json.data[i].image, images: json.data[i].images, name: json.data[i].name, temple: json.data[i].temple, updated_at: json.data[i].updated_at, description: json.data[i].description });
+                        newarray.push({
+                            type: 'item',
+                            name: json.data[i].name,
+                            created_at: json.data[i].created_at,
+                            date_time: json.data[i].date_time,
+                            id: json.data[i].id,
+                            image: json.data[i].image,
+                            images: json.data[i].images,
+                            temple: json.data[i].temple,
+                            updated_at: json.data[i].updated_at,
+                            description: json.data[i].description
+                        });
                         if (i % 2 === 0 && staticIndex < staticData.length) {
                             newarray.push(staticData[staticIndex]);
                             staticIndex++;
                         }
                     }
-                    setoldtempdata(newarray)
+                    setoldtempdata(newarray);
                 } else {
-                    alert(json.message)
+                    alert(json.message);
                 }
-                setLoading(false)
-
+                setLoading(false);
             })
-    }
+            .catch((error) => {
+                console.error('Error fetching old events:', error);
+                setLoading(false);
+            });
+    };
+
     const datedis = (date) => {
         var servertime = new Date(date.replace(" ", "T"))
         const last = new Date(servertime).getTime();
@@ -169,12 +224,12 @@ export default function ManageEvent1({ navigation }) {
                     <View style={{ height: 20 }}></View>
                     {item.image ?
                         <TouchableOpacity onPress={() => navigation.navigate('Detail', { 'data': item, 'date': data })} style={styles.main}>
-                            <Image  style={styles.mainimg} source={{ uri: 'https://www.app.gounderkudumbam.com/admin/public/images/' + item.image }} />
+                            <Image style={styles.mainimg} source={{ uri: 'https://www.app.gounderkudumbam.com/admin/public/images/' + item.image.split(',')[0]}} />
                         </TouchableOpacity>
                         :
                         null
                     }
-
+                    {/* <Text>{item.image}</Text> */}
                     <View style={{ height: 20 }}></View>
                     <TouchableOpacity onPress={() => navigation.navigate('Detail', { 'data': item, 'date': data })}>
 
@@ -184,7 +239,7 @@ export default function ManageEvent1({ navigation }) {
                             </Text>
                             <Text style={styles.maintxttwo}>
                                 Event Date :{datetime(item.date_time)}
-                               
+
                             </Text>
                         </View>
                     </TouchableOpacity>
@@ -227,12 +282,12 @@ export default function ManageEvent1({ navigation }) {
                     <View style={{ height: 20 }}></View>
                     {item.image ?
                         <TouchableOpacity onPress={() => navigation.navigate('Detail', { 'data': item, 'date': data })} style={styles.main}>
-                            <FastImage resizeMode='stretch' style={styles.mainimg} source={{ uri: 'https://www.app.gounderkudumbam.com/admin/public/images/' + item.image.split(',')[0] }} />
+                            <Image resizeMode='stretch' style={styles.mainimg} source={{ uri: 'https://www.app.gounderkudumbam.com/admin/public/images/' + item.image.split(',')[0] }} />
                         </TouchableOpacity>
                         :
                         null
                     }
-
+                    {/* <Text>{'https://www.app.gounderkudumbam.com/admin/public/images/6703ae01d497e.jpeg'}</Text> */}
                     <View style={{ height: 20 }}></View>
                     <TouchableOpacity onPress={() => navigation.navigate('Detail', { 'data': item, 'date': data })}>
 
@@ -242,7 +297,7 @@ export default function ManageEvent1({ navigation }) {
                             </Text>
                             <Text style={styles.maintxttwo}>
                                 Event Date :{datetime(item.date_time)}
-                               
+
                             </Text>
                         </View>
                     </TouchableOpacity>
@@ -261,6 +316,7 @@ export default function ManageEvent1({ navigation }) {
         <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
             <StatusBar animated={true} backgroundColor="#ffffff" />
             <ScrollView>
+            {loading && <ActivityIndicator size="large" color="#043b5a" />}
                 <View style={{ margin: 20 }}>
                     <View style={{ height: 30 }}></View>
                     <View style={{ flexDirection: 'row', width: '100%' }}>
@@ -316,6 +372,7 @@ export default function ManageEvent1({ navigation }) {
                     />
                     <View style={{ height: 35 }}></View>
                 </View>
+
             </ScrollView>
         </SafeAreaView>
     );

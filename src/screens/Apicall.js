@@ -79,4 +79,38 @@ export const updatepro = async (url, data) => {
     const finalRes = await res.json();
     return finalRes;
 };
+export const selectedUploadimg = async (url, data) => {
+    try {
+        const res = await fetch(url, {
+            method: 'post', body: JSON.stringify((data)),
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            }
+        });
+        const finalRes = await res.json();
+
+        return finalRes;
+    } catch (error) {
+        console.log('error-->>>>', error)
+    }
+};
+
+
+export const deletedata = async (url, data) => {
+    try {
+        const res = await fetch(url, {
+            method: 'post', body: JSON.stringify((data)),
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            }
+        });
+        const finalRes = await res.json();
+
+        return finalRes;
+    } catch (error) {
+        console.log('error-->>>>', error)
+    }
+};
 

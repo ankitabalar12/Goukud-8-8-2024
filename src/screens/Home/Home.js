@@ -303,7 +303,9 @@ export default function Home({ navigation }) {
     // }
     const oldevento = () => {
         if (refmodel == '1') {
-            navigation.navigate('Oldevent')
+            // navigation.navigate('Oldevent')
+            navigation.navigate('Events')
+
         } else {
             setIsModalVisible(true)
         }
@@ -311,7 +313,8 @@ export default function Home({ navigation }) {
 
     const evento = () => {
         if (refmodel == '1') {
-            navigation.navigate('Events')
+             navigation.navigate('Oldevent')
+            // navigation.navigate('ManageEvent1')
         } else {
             setIsModalVisible(true)
         }
@@ -326,7 +329,9 @@ export default function Home({ navigation }) {
     const oldevent = () => {
 
         if (refmodel == '1') {
-            navigation.navigate('Oldevent')
+            navigation.navigate('ManageEvent1')
+            // navigation.navigate('Oldevent')
+
         } else {
             setIsModalVisible(true)
         }
@@ -363,7 +368,7 @@ export default function Home({ navigation }) {
             setIsModalVisible(true)
         }
     }
- const Detail = () => {
+    const Detail = () => {
 
         if (refmodel == '1') {
             navigation.navigate('Detail')
@@ -374,13 +379,14 @@ export default function Home({ navigation }) {
     const Callsecon = () => {
         if (refmodel == '1') {
             navigation.navigate('Callone')
-         
+
             // Gallery
         } else {
             setIsModalVisible(true)
         }
     }
     return (
+       
         <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
             <StatusBar animated={true} backgroundColor="#ffffff" />
             <ScrollView>
@@ -391,8 +397,8 @@ export default function Home({ navigation }) {
                             <FastImage style={styles.icon} source={require('../../../assets/images/bell.png')} />
                         </TouchableOpacity> */}
                         <View style={{ width: '60%' }}>
-<TouchableOpacity  onPress={() => navigation.navigate('AddVideoScreen')}>
-                            <Text style={styles.name}>Gounder Kudumbam</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('AddVideoScreen')}>
+                                <Text style={styles.name}>Gounder Kudumbam</Text>
                             </TouchableOpacity>
                         </View>
                         <TouchableOpacity style={{ width: '40%' }} onPress={() => navigation.navigate('Aboutus')}>
@@ -402,11 +408,11 @@ export default function Home({ navigation }) {
                     <View style={{ height: 20 }}></View>
                     <View style={{ flexDirection: 'row', width: '100%' }}>
                         <View style={{ width: '50%' }}>
-                           
+
                             <Text style={styles.title}>
                                 WELCOME {global.uername},
                             </Text>
-                         
+
                         </View>
                         <View style={{ width: '50%' }}>
                             <Text style={styles.id}>
@@ -451,7 +457,13 @@ export default function Home({ navigation }) {
                                 : null}
                         </View>
 
-                        // <TouchableOpacity style={{ width: 350, height: 400, alignSelf: 'center' }} onPress={() => mainimg()}>
+                     
+                    }
+
+
+
+{
+       // <TouchableOpacity style={{ width: 350, height: 400, alignSelf: 'center' }} onPress={() => mainimg()}>
                         //     <FastImage resizeMode='stretch' style={{ flex: 1, borderRadius: 20 }} source={require('../../../assets/images/maa.jpg')} />
                         //     <Text style={styles.alltxt1}>
                         //         Shri Ponkaliaman
@@ -460,9 +472,7 @@ export default function Home({ navigation }) {
                         //         Shivgiri , Endor
                         //     </Text>
                         // </TouchableOpacity>
-                    }
-
-
+}
 
                     <View style={{ height: 20 }}></View>
 
@@ -503,7 +513,7 @@ export default function Home({ navigation }) {
                         </TouchableOpacity>
                         <TouchableOpacity style={{ width: '34%' }}
                             onPress={() => callpag()}
-                            // onPress={() => gallery()}
+                        // onPress={() => gallery()}
                         >
                             <View style={styles.boxview}>
                                 <Text style={styles.fntone}>அருமை</Text>
@@ -571,6 +581,10 @@ export default function Home({ navigation }) {
                         </View>
                         :
                         null
+                        
+                    }
+
+                    {
                         // <View>
                         //     <Text style={{ color: '#22242A', fontSize: 12, fontFamily: 'Montserrat-Regular' }}>Our Grandpa Kula deivam.. Its unique and old temple also The temple folloeing old cultures still same way..Yearly once Celebrating Functions its will be seen Unity of people from diffrent Cities at one place..</Text>
                         // </View>
@@ -617,6 +631,7 @@ export default function Home({ navigation }) {
                 </Modal>
             </ScrollView>
         </SafeAreaView>
+        
     )
 }
 //work like this is ok?

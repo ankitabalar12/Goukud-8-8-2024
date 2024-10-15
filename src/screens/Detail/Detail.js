@@ -24,7 +24,7 @@ export default function Detail({ route, navigation }) {
     const details = () => {
         const getdata = route.params.data
         console.log('getdata ====> ', getdata)
-
+       
         if (getdata.images !== null) {
             addimg.push(getdata.image, getdata.images)
             const outputArray = addimg.flatMap((element) => element.split(","));

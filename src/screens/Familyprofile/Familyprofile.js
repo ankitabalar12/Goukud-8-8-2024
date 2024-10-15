@@ -7,6 +7,7 @@ import { registetion, getkulam, gettemples } from '../Apicall';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-community/async-storage';
 import { AppOpenAd, InterstitialAd, RewardedAd, BannerAdSize, BannerAd, TestIds } from 'react-native-google-mobile-ads';
+import { ActivityIndicator } from 'react-native';
 
 export default function Familyprofile({ navigation }) {
     const [valuecom, setValuecom] = useState('');
@@ -22,7 +23,7 @@ export default function Familyprofile({ navigation }) {
     const [name, setName] = useState('')
     const [name2, setname2] = useState('')
     const [datechk, setdatechk] = useState('')
-    const [occuption, setOccupation] = useState()
+    const [occuption, setOccupation] = useState('')
     const [occuption2, setoccuption2] = useState()
     const [userid, setuserid] = useState('')
     const [member, setmember] = useState()
@@ -47,11 +48,26 @@ export default function Familyprofile({ navigation }) {
         getkulamdis()
         // //console.log('----------- ', screenData.id)
         getadvertisement()
-      
+
         // })
     }, [])
-    const toggleVisibility = (id) => {
-        setVisibleId(visibleId === id ? null : id); // Toggle visibility for the selected ID
+    const toggleVisibility = (item) => {
+        
+        setRelation(item.relation);
+        setName(item.name);
+        setOccupation(item.occupation);
+        setValuecom(item.relation)
+        //setkulams(item.kulam);
+      
+        const kulamValue = typeof item.kulam === 'string' ? Number(item.kulam) : item.kulam;
+        setkulams(kulamValue);
+        
+        console.log('item.kulam>>>',item.kulam);
+       
+        setVisibleId(visibleId === item.id ? null : item.id); // Toggle visibility for the selected import { second } from 'first'
+        
+       
+        //setkulamname(item.kulam_name);
     };
     const getadvertisement = async () => {
         const result = await AsyncStorage.getItem('logindata')
@@ -103,11 +119,11 @@ export default function Familyprofile({ navigation }) {
 
 
     const data = [
-        { label: 'brother', value: '1' },
-        { label: 'wife', value: '2' },
-        { label: 'father', value: '3' },
-        { label: 'mother', value: '4' },
-        { label: 'sister', value: '5' },
+        { label: 'brother', value: 'brother' },
+        { label: 'wife', value: 'wife' },
+        { label: 'father', value: 'father' },
+        { label: 'mother', value: 'mother' },
+        { label: 'sister', value: 'sister' },
         { label: 'son', value: '6' },
     ];
 
@@ -118,7 +134,7 @@ export default function Familyprofile({ navigation }) {
             setadd('0')
         }
     }
-   
+
     const addprofil = async () => {
         setsubmitted(true)
         //console.log('========================')
@@ -158,7 +174,7 @@ export default function Familyprofile({ navigation }) {
         })
             .then((res) => res.json())
             .then(async (json) => {
-                 console.log('res====>>', json)
+                console.log('res====>>', json)
                 if (json.success == true) {
                     setadd('0')
                     getmember(screenData.id)
@@ -170,7 +186,7 @@ export default function Familyprofile({ navigation }) {
 
     }
 
-   
+
     const getkulamdis = () => {
         getkulam(global.url + 'getkulam').then(res => {
             global.dropDownData = [];
@@ -214,9 +230,9 @@ export default function Familyprofile({ navigation }) {
     //                     }
     //                     setmember(newarray)
     //                     setPass_Id(newarray.id)
-                      
+
     //                    }
-                    
+
     //             } else {
     //                 // alert(json.message)
     //             }
@@ -238,296 +254,69 @@ export default function Familyprofile({ navigation }) {
                 user_id: id,
             })
         })
-        .then((res) => res.json())
-        .then((json) => {
-            if (json.success) {
-                let staticIndex = 0;
-                for (let i = 0; i < json.data.length; i++) {
-                    const member = json.data[i];
-                    newarray.push({ 
-                        type: 'item', 
-                        ...member 
-                    });
-                    if (i % 2 === 0 && staticIndex < staticData.length) {
-                        newarray.push(staticData[staticIndex]);
-                        staticIndex++;
+            .then((res) => res.json())
+            .then((json) => {
+                if (json.success) {
+                    let staticIndex = 0;
+                    for (let i = 0; i < json.data.length; i++) {
+                        const member = json.data[i];
+                        newarray.push({
+                            type: 'item',
+                            ...member
+                        });
+                        if (i % 2 === 0 && staticIndex < staticData.length) {
+                            newarray.push(staticData[staticIndex]);
+                            staticIndex++;
+                        }
                     }
+                    setmember(newarray);
+                    console.log('>>>',member);
+                    
+
+
+                    setPass_Id(json.data.length > 0 ? json.data.id : null); // Example of setting pass_id
+                    console.log('========================', json.data.length > 0 ? json.data[0].id : null)
+                } else {
+                    Alert.alert('Error', json.message);
                 }
-                setmember(newarray);
-                setPass_Id(json.data.length > 0 ? json.data.id : null); // Example of setting pass_id
-                console.log('========================', json.data.length > 0 ? json.data[0].id : null)
-            } else {
-                Alert.alert('Error', json.message);
-            }
-        })
-        .catch((error) => {
-            console.error('Error fetching members:', error);
-            Alert.alert('Error', 'Failed to fetch members.');
-        })
-        .finally(() => setLoading(false));
+            })
+            .catch((error) => {
+                console.error('Error fetching members:', error);
+                Alert.alert('Error', 'Failed to fetch members.');
+            })
+            .finally(() => setLoading(false));
     };
-    
 
-    // const getmember = (id) => {
-    //     const newarray = [];
-    //     fetch(global.url + 'getmember', {
-    //         method: 'POST',
-    //         headers: {
-    //             Accept: 'application/json',
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //             user_id: id,
-    //         }),
-    //     })
-    //         .then((res) => res.json())
-    //         .then(async (json) => {
-    //             console.log('Response from getmember:', json); // Log the response
-                
-    //             if (json.success) {
-    //                 let staticIndex = 0;
-    
-    //                 for (let i = 0; i < json.data.length; i++) {
-    //                     newarray.push({
-    //                         type: 'item',
-    //                         community: json.data[i].community,
-    //                         created_at: json.data[i].created_at,
-    //                         dob: json.data[i].dob,
-    //                         id: json.data[i].id,
-    //                         kulam: json.data[i].kulam,
-    //                         name: json.data[i].name,
-    //                         occupation: json.data[i].occupation,
-    //                         profile_pic: json.data[i].profile_pic,
-    //                         relation: json.data[i].relation,
-    //                         updated_at: json.data[i].updated_at,
-    //                         user_id: json.data[i].user_id,
-    //                         kulam_name: json.data[i].kulam_name,
-    //                     });
-    
-    //                     if (i % 2 === 0 && staticIndex < staticData.length) {
-    //                         newarray.push(staticData[staticIndex]);
-    //                         staticIndex++;
-    //                     }
-    //                 }
-    
-    //                 setmember(newarray);
-    //                 // setPass_Id(data.id)
-    //                 // setPass_Id(data.id)
-               
-    //                 console.log('============================',newarray.id)
-    //                 console.log('============================',newarray[1].id)
-    //                 console.log('============================',newarray[2].id)
-    //                 console.log('============================',newarray[3].id)
-                   
-    //             //     if (newarray.length > 0) {
-    //             //         const Member = newarray.find(item => item.type === 'item'); // Find the first member with type 'item'
-    //             //         if (Member) {
-    //             //             global.MemberId = Member.id; // Store the first member id globally
-    //             //             console.log('Member ID (global):', global.MemberId);
-    //             //         } else {
-    //             //             console.error('No valid member found in the array'); // Handle case where no valid member is found
-    //             //         }
-    //             //     }
-    //             //     console.log('Updated member array----------------:', newarray); // Log the updated member array
-    //             //     const memberIds = newarray.filter(item => item.type === 'item').map(item => item.id);
-    //             //     console.log('Member IDs:', memberIds);
-    //             //     global.firstMemberId = newarray[0].id;
-                   
-    //             // } else {
-    //             //     console.error('Error fetching members:', json.message); // Log error message
-    //             //     // Optionally show an alert or handle errors
-    //             // }
-    //             if (newarray.length > 0) {
-    //                 const Member = newarray.find(item => item.type === 'item'); // Find the first member with type 'item'
-    //                 if (Member) {
-    //                     // global.MemberId = Member.id; // Store the first member id globally
-    //                     // console.log(' Member ID (global):', global.MemberId);
-    //                     setPass_Id(Member.id); 
-    //                     console.log('firstMember.id =======', Member.id)
-    //                     // Pass the ID to the editpro function
-    //                 } else {
-    //                     console.error('No valid member found in the array'); // Handle case where no valid member is found
-    //                 }
-    //             }
-    //         } else {
-    //             console.error('Error fetching members:', json.message); // Log error message
-    //         }
-    //         })
-    //         .catch((error) => {
-    //             console.error('Fetch error in getmember:', error); // Log fetch errors
-    //         })
-    //         .finally(() => {
-    //             setLoading(false); // Ensure loading state is reset
-    //         });
-    // };
-    
+    useEffect(() => {
+        // Log to ensure kulams is updated properly
+        console.log('Dropdown Data:', kulam);
 
+        console.log('kulams value changed:', kulams);
+    }, [kulams]);
 
-    // const editpro = async (id) => {
-
-    //     setsubmitted(true);
-    //     //  await getmember(id);
-    //     // Validate required fields
-    //     if (!name || !relation) {
-    //         Alert.alert('Error', 'Please fill in all required fields.');
-    //         return; // Stop execution if validation fails
-    //     }
-
-    //     try {
-    //         const result = await AsyncStorage.getItem('logindata');
-    //         const screenData = JSON.parse(result);
-    //         console.log('Screen Data:', screenData);
-
-    //         // Prepare the payload for the API request
-    //         const payload = {
-    //             id: id,
-    //             name: name,
-    //             relation: relation,
-    //             community: 'community',
-    //             kulam: kulamname,
-    //             dob: '2001-01-01', // You may want to make this dynamic
-    //             occupation: occuption,
-    //         };
-
-    //         const response = await fetch(global.url + 'updatefamilymember', {
-    //             method: 'POST',
-    //             headers: {
-    //                 Accept: 'application/json',
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify(payload),
-    //         });
-
-    //         const json = await response.json();
-
-    //         if (json.success) {
-    //             // Retrieve and update user info in AsyncStorage
-    //             const result1 = await AsyncStorage.getItem('logindata');
-    //             const updatedUserInfo = JSON.parse(result1);
-
-    //             const newUpdatedUserInfo = {
-    //                 ...updatedUserInfo,
-    //                 name: name, // Ensure you are using the correct variable
-    //                 relation: relation,
-    //                 community: 'community',
-    //                 kulam: kulamname,
-    //                 dob: '2001-01-01', // Same as above
-    //                 occupation: occuption,
-    //             };
-
-    //             await AsyncStorage.setItem('logindata', JSON.stringify(newUpdatedUserInfo));
-
-    //             // Optionally, update state or provide feedback
-    //             console.log('Profile updated successfully.');
-    //         } else {
-    //             // Handle API response errors
-    //             Alert.alert('Error', json.message);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error in editpro:', error);
-    //         Alert.alert('Error', 'An unexpected error occurred. Please try again.');
-    //     } finally {
-    //         setLoading(false); // Ensure loading state is reset
-    //     }
-    // };
-
-    // const editpro = async () => {
-    //     setsubmitted(true);
-        
-    //     // Validate required fields
-    //     // if (!name || !relation) {
-    //     //     Alert.alert('Error', 'Please fill in all required fields.');
-    //     //     return; // Stop execution if validation fails
-    //     // }
-    
-    //     try {
-    //         const result = await AsyncStorage.getItem('logindata');
-    //         const screenData = JSON.parse(result);
-    //         console.log('Screen Data:', screenData);
-    
-    //         // Prepare the payload for the API request
-    //         const payload = {
-    //             id:visibleId,
-    //             name: name,
-    //             relation: relation,
-    //             community: 'community',
-    //             kulam: kulamname,
-    //             dob: '2001-01-01', // Make this dynamic if needed
-    //             occupation: occuption,
-    //         };
-    //         console.log('-------------------------------',payload)
-    //         const response = await fetch(global.url + 'updatefamilymember', {
-    //             method: 'POST',
-    //             headers: {
-    //                 Accept: 'application/json',
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify(payload),
-    //         });
-    
-    //         const json = await response.json();
-    
-    //         if (json.success) {
-    //             // Retrieve and update user info in AsyncStorage
-    //             const result1 = await AsyncStorage.getItem('logindata');
-    //             const updatedUserInfo = JSON.parse(result1);
-    
-    //             const newUpdatedUserInfo = {
-    //                 ...updatedUserInfo,
-    //                 name: name,
-    //                 relation: relation,
-    //                 community: 'community',
-    //                 kulam: kulamname,
-    //                 dob: '2001-01-01',
-    //                 occupation: occuption,
-    //             };
-    
-    //             await AsyncStorage.setItem('logindata', JSON.stringify(newUpdatedUserInfo));
-    
-    //             // Show success alert
-    //             Alert.alert('Success', 'Profile updated successfully.', [
-    //                 {
-    //                     text: 'OK',
-    //                     onPress: () => {
-    //                         setVisibleId(false); // Close the view
-    //                     },
-    //                 },
-    //             ]);
-    
-    //             console.log('Profile updated successfully.');
-    //         } else {
-    //             // Handle API response errors
-    //             Alert.alert('Error', json.message);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error in editpro:', error);
-    //         Alert.alert('Error', 'An unexpected error occurred. Please try again.');
-    //     } finally {
-    //         setLoading(false); // Ensure loading state is reset
-    //     }
-    // };
     const editpro = async () => {
         setsubmitted(true);
         setLoading(true); // Start loading state
-    
+
         try {
+            // Retrieve login data from AsyncStorage
             const result = await AsyncStorage.getItem('logindata');
             const screenData = JSON.parse(result);
             console.log('Screen Data:', screenData);
-    
+
             // Prepare the payload for the API request
             const payload = {
                 id: visibleId,
                 name: name,
                 relation: relation,
                 community: 'community',
-                kulam: kulamname,
+                kulam: kulams,
                 dob: '2001-01-01', // Make this dynamic if needed
                 occupation: occuption,
             };
-    
+
             console.log('Payload:', payload);
-    
+
             // Make API request
             const response = await fetch(global.url + 'updatefamilymember', {
                 method: 'POST',
@@ -537,163 +326,188 @@ export default function Familyprofile({ navigation }) {
                 },
                 body: JSON.stringify(payload),
             });
-    
+
             const json = await response.json();
-    
+
             // Check API response
             if (response.ok && json.success) {
                 // Retrieve and update user info in AsyncStorage
-                const updatedUserInfo = {
-                    ...screenData,
-                    name: name,
-                    relation: relation,
-                    community: 'community',
-                    kulam: kulamname,
-                    dob: '2001-01-01',
-                    occupation: occuption,
-                };
-    
-                await AsyncStorage.setItem('logindata', JSON.stringify(updatedUserInfo));
-    
-                // Show success alert
-                Alert.alert('Success', 'Profile updated successfully.', [
-                    {
-                        text: 'OK',
-                        onPress: () => {
-                            setVisibleId(false); // Close the view
-                        },
-                    },
-                ]);
-    
-                console.log('Profile updated successfully.');
+                // const updatedUserInfo = {
+                //     ...screenData,
+                //     name: name,
+                //     relation: relation,
+                //     community: 'community',
+                //     kulam: kulamname,
+                //     dob: '2001-01-01',
+                //     occupation: occuption,
+                // };
+
+                // await AsyncStorage.setItem('logindata', JSON.stringify(updatedUserInfo));
+                const storedUserData = await AsyncStorage.getItem('logindata');
+                const screenData = JSON.parse(storedUserData)
+                getmember(screenData.id);
+
+                console.log('updatedUserInfo===================', storedUserData)
+                // Show success alert and delay actions by 3 seconds
+                Alert.alert('Success', 'Profile updated successfully.');
+
+                setTimeout(() => {
+                    // Hide the view after 3 seconds
+                    setVisibleId(false); // Close the view
+
+                    console.log('Profile updated successfully.');
+                }, 3000); // Delay of 3000 milliseconds (3 seconds)
+
             } else {
+
                 Alert.alert('Success', 'Profile updated successfully.', [
                     {
                         text: 'OK',
                         onPress: () => {
-                            setVisibleId(false); // Close the view
+                            setVisibleId(false);
+                           // navigation.navigate('Profile')
                         },
                     },
                 ]);
-                // Handle API errors
-                // Alert.alert('Error', json.message || 'Failed to update profile.');
             }
         } catch (error) {
             console.error('Error updating profile:', error);
             Alert.alert('Error', 'An unexpected error occurred.');
         } finally {
-            setLoading(false); // Ensure loading state is reset
+            // Delay loading state reset by 3 seconds to align with the alert timing
+            setTimeout(() => {
+                setLoading(false); // Ensure loading state is reset after 3 seconds
+            }, 3000); // Delay of 3000 milliseconds (3 seconds)
         }
     };
-    
+
 
     const renderItem = ({ item }) => {
         if (item.type === 'banner') {
-            return <View style={{ alignItems: 'center' }}>
-                <BannerAd size={BannerAdSize.BANNER}
-                    unitId={TestIds.BANNER}
-                    requestOptions={
-                        {
-                            requestNonPersonalizedAdsOnly: true
-                        }
-                    } />
-            </View>
+            return (
+                <View style={{ alignItems: 'center' }}>
+                    <BannerAd
+                        size={BannerAdSize.BANNER}
+                        unitId={TestIds.BANNER}
+                        requestOptions={{
+                            requestNonPersonalizedAdsOnly: true,
+                        }}
+                    />
+                </View>
+            );
         } else {
             const isItemVisible = visibleId === item.id;
             return (
                 <View>
-                <View style={styles.viewbox}>
-                    <View style={{ width: '20%' }}>
-                        <FastImage style={{ width: 60, height: 60 }} source={require('../../../assets/images/profile.png')} />
-                    </View>
-                    <View style={{ width: '50%', alignSelf: 'center' }}>
-                        <Text style={styles.owner}>{item.name}</Text>
-                        <Text style={styles.occuption}>{item.occupation}</Text>
-                        <Text style={styles.occuption}>Kulam: {item.kulam_name}</Text>
-                    </View>
-                    <View style={{ width: '30%', alignSelf: 'center' }}>
-                        <TouchableOpacity onPress={() => toggleVisibility(item.id)}>
-                            <Text style={styles.edittext}>Edit</Text>
-                        </TouchableOpacity>
-                        <View style={styles.ask}>
-                            <Text style={styles.fnttwo}>{item.relation}</Text>
+                    <View style={styles.viewbox}>
+                        <View style={{ width: '20%' }}>
+                            <FastImage style={{ width: 60, height: 60 }} source={require('../../../assets/images/profile.png')} />
                         </View>
-                    </View>
-                    </View>
-                     {isItemVisible &&  (
-                <View>
-                    <View style={{ margin: 7 }}>
-                        <View style={{ borderBottomWidth: 1, borderBottomColor: '#829ead' }}>
-                        <Dropdown
-                                    style={[styles.dropdown]}
-                                    placeholderStyle={{ color: "#8D92A3", fontFamily: 'Montserrat-Regular', fontSize: 14 }}
-                                    selectedTextStyle={{ color: '#8D92A3', fontFamily: 'Montserrat-Regular', fontSize: 14 }}
-                                    iconStyle={styles.iconStyle}
-                                    data={data}
-                                    maxHeight={300}
-                                    labelField="label"
-                                    valueField="value"
-                                    placeholder='Relation'
-                                    value={relation}
-                                    onChange={(item) => {
-                                        setValuecom(item.label);
-                                        setRelation(item.label)
-                                    }}
-                                />
+                        <View style={{ width: '50%', alignSelf: 'center' }}>
+                            <Text style={styles.owner}>{item.name}</Text>
+                            <Text style={styles.occuption}>{item.occupation}</Text>
+                            <Text style={styles.occuption}>Kulam: {item.kulam_name}</Text>
                         </View>
-                        {/* {valuecom === '' && submitted ? <Text style={styles.chooseUserName}>Please select your Relation</Text> : null} */}
-
-                        <View style={{ borderBottomWidth: 1, borderBottomColor: '#829ead' }}>
-                            <TextInput onChangeText={setName} value={name} placeholderTextColor={'#829ead'} style={styles.txtin} placeholder='Name' />
-                        </View>
-                        {/* {name === '' && submitted ? <Text style={styles.chooseUserName}>Please enter a name</Text> : null} */}
-
-                        <View style={{ borderBottomWidth: 1, borderBottomColor: '#829ead' }}>
-                            <TextInput onChangeText={setOccupation} value={occuption} placeholderTextColor={'#829ead'} style={styles.txtin} placeholder='Occupation' />
-                        </View>
-                        {/* {occuption === '' && submitted ? <Text style={styles.chooseUserName}>Please enter an occupation</Text> : null} */}
-
-                        <View style={{ borderBottomWidth: 1, borderBottomColor: '#829ead' }}>
-                            {kulam ? (
-                                <Dropdown
-                                style={[styles.dropdown]}
-                                placeholderStyle={{ color: "#8D92A3", fontFamily: 'Montserrat-Regular', fontSize: 14 }}
-                                selectedTextStyle={{ color: '#8D92A3', fontFamily: 'Montserrat-Regular', fontSize: 14 }}
-                                iconStyle={styles.iconStyle}
-                                data={kulam}
-                                maxHeight={300}
-                                labelField="label"
-                                valueField="value"
-                                placeholder='kulam'
-                                value={kulam}
-                                onChange={(item) => {
-                                    setkulams(item.label);
-                                    setkulamname(item.value)
-                                }}
-                            />
-                            ) : null}
-                        </View>
-                        {/* {kulam === '' && submitted ? <Text style={styles.chooseUserName}>Please select a kulam</Text> : null} */}
-
-                        <View style={{ height: 30 }}></View>
-                        <TouchableOpacity onPress={editpro} style={{ width: '50%', alignSelf: 'center' }}>
+                        <View style={{ width: '30%', alignSelf: 'center' }}>
+                            <TouchableOpacity onPress={() => toggleVisibility(item)}>
+                                <Text style={styles.edittext}>Edit</Text>
+                            </TouchableOpacity>
                             <View style={styles.ask}>
-                                <Text style={styles.fnttwo}>Save</Text>
+                                <Text style={styles.fnttwo}>{item.relation}
+                                  
+
+                                </Text>
                             </View>
-                        </TouchableOpacity>
-                        <View style={{ height: 30 }}></View>
+                        </View>
                     </View>
-                </View>
-            )}
+
+                    {isItemVisible && (
+                        <View>
+                            <View style={{ margin: 7 }}>
+                                <View style={{ borderBottomWidth: 1, borderBottomColor: '#829ead' }}>
+                                    <Dropdown
+                                        style={[styles.dropdown]}
+                                        placeholderStyle={{ color: '#8D92A3', fontFamily: 'Montserrat-Regular', fontSize: 14 }}
+                                        selectedTextStyle={{ color: '#8D92A3', fontFamily: 'Montserrat-Regular', fontSize: 14 }}
+                                        iconStyle={styles.iconStyle}
+                                        data={data}
+                                        maxHeight={300}
+                                        labelField="label"
+                                        valueField="value"
+                                        placeholder="Relation"
+                                        value={relation}
+                                        onChange={(item) => {
+                                           
+                                            setValuecom(item.label);
+                                            setRelation(item.value);
+                                        }}
+                                    />
+                                </View>
+
+                                <View style={{ borderBottomWidth: 1, borderBottomColor: '#829ead' }}>
+                                    <TextInput
+                                        value={name}
+                                        placeholderTextColor={'#829ead'}
+                                        style={styles.txtin}
+                                        placeholder="Name"
+                                        onChangeText={(value) => setName(value)} // Make sure this is active
+                                    />
+                                </View>
+
+                                <View style={{ borderBottomWidth: 1, borderBottomColor: '#829ead' }}>
+                                    <TextInput
+                                        value={occuption}
+                                        placeholderTextColor={'#829ead'}
+                                        style={styles.txtin}
+                                        placeholder="Occupation"
+                                          onChangeText={(value) => setOccupation(value)}
+                                    />
+                                </View>
+
+                                <View style={{ borderBottomWidth: 1, borderBottomColor: '#829ead' }}>
+                                    {kulam ? (
+                                        <Dropdown
+                                            style={[styles.dropdown]}
+                                            placeholderStyle={{ color: '#8D92A3', fontFamily: 'Montserrat-Regular', fontSize: 14 }}
+                                            selectedTextStyle={{ color: '#8D92A3', fontFamily: 'Montserrat-Regular', fontSize: 14 }}
+                                            iconStyle={styles.iconStyle}
+                                            data={kulam}
+                                            maxHeight={300}
+                                            labelField="label"
+                                            valueField="value"
+                                            placeholder="Kulam"
+                                            value={kulams}
+                                            onChange={(valofdrop) => {
+                                                setkulams(valofdrop.value);
+                                                setkulamname(valofdrop.label);
+                                                
+                                                
+                                            }}
+                                        />
+                                    ) : null}
+                                </View>
+
+                                <View style={{ height: 30 }}></View>
+
+                                <TouchableOpacity onPress={editpro} style={{ width: '50%', alignSelf: 'center' }}>
+                                    <View style={styles.ask}>
+                                        <Text style={styles.fnttwo}>Save</Text>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <View style={{ height: 30 }}></View>
+                            </View>
+
+
+                        </View>
+                    )}
                 </View>
             );
         }
     };
 
     const renderSeparator = () => {
-        return (
-            <View style={{ height: 10, backgroundColor: 'transparent' }} />
-        );
+        return <View style={{ height: 10, backgroundColor: 'transparent' }} />;
     };
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
@@ -822,8 +636,8 @@ export default function Familyprofile({ navigation }) {
                             ItemSeparatorComponent={renderSeparator}
 
                         />
-                                   
-                             {/* {member ?
+
+                        {/* {member ?
                             <View>
                                 {member.map((m, index) => (
                                     <View style={styles.viewbox}>

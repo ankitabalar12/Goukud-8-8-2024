@@ -32,11 +32,13 @@ export default function ManageEvent({ navigation }) {
     const [selectedTime, setSelectedTime] = useState(new Date());
     useEffect(async () => {
         // navigation.addListener('focus', async () => {
+            
         const result = await AsyncStorage.getItem('logindata')
         const screenData = JSON.parse(result)
-        console.log('manage events page ==========')
-        //console.log('screenData', screenData.temple)
+       
+       
         setuserid(screenData.id)
+
         // })
     }, [])
 
@@ -115,6 +117,9 @@ export default function ManageEvent({ navigation }) {
     //             setLoading(false)
     //         })
     // }
+
+
+    
 
     const added = async () => {
         console.log('============/=>>> ', date);
@@ -290,10 +295,15 @@ export default function ManageEvent({ navigation }) {
             cameraType: 'back'
         }
         launchCamera(options, (response) => {
+            console.log('response===> ', 'data:image/jpeg;base64,', response)
             if (response.didCancel !== true) {
                 setLoading(true)
+
+                
+
+
                 let includeBase64 = response.assets[0].base64;
-                //console.log('response===> ', 'data:image/jpeg;base64,', includeBase64)
+                
                 fetch(global.url + 'uploadimage',
                     {
                         method: 'post',
@@ -307,13 +317,13 @@ export default function ManageEvent({ navigation }) {
                     })
                     .then((res) => res.json())
                     .then((json) => {
-                        //console.log('=============================>>>>>> ', json)
+                        console.log('=============================>>>>>> ', json)
                         if (json.success == true) {
                             setLoading(false)
                             if (id == '1') {
                                 let userpic = json.data;
                                 setImg1(userpic);
-                                //console.log('userpic=>> ', userpic)
+                                console.log('userpic=>> ', userpic)
                             }
                             if (id == '2') {
                                 let userpic = json.data;
@@ -340,9 +350,10 @@ export default function ManageEvent({ navigation }) {
                     })
                     .catch((err) => {
                         setLoading(false)
-                        //console.log(err)
+                        
                     })
                 setLoading(false)
+
             }
         })
 
@@ -363,6 +374,7 @@ export default function ManageEvent({ navigation }) {
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
                 console.log("Camera permission given");
                 openCamera(id)
+                
             } else {
                 console.log("Camera permission denied");
             }
@@ -401,13 +413,13 @@ export default function ManageEvent({ navigation }) {
                     })
                     .then((res) => res.json())
                     .then((json) => {
-                        //console.log(json)
+                        console.log(json)
                         if (json.success == true) {
                             setLoading(false)
                             if (id == '1') {
                                 let userpic = json.data;
                                 setImg1(userpic);
-                                //console.log('userpic=>> ', userpic)
+                                console.log('userpic=>> ', userpic)
                             }
                             if (id == '2') {
                                 let userpic = json.data;
@@ -434,7 +446,7 @@ export default function ManageEvent({ navigation }) {
                     })
                     .catch((err) => {
                         setLoading(false)
-                        //console.log(err)
+                        console.log(err)
                     })
                 setLoading(false)
             }

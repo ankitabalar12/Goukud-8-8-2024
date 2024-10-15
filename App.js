@@ -57,6 +57,9 @@ import SelectVideoScreen from './src/screens/SelectVideoScreen/SelectVideoScreen
 import Notifictionscreen from './src/screens/Notifictionscreen/Notifictionscreen';
 import ManageVideo from './src/screens/ManageVideo/ManageVideo';
 import AddVideoScreen from './src/screens/AddVideoScreen/AddVideoScreen';
+import Verifyotpforgotpasswordscreev from './src/VerifyPasswordOtp/VerifyPasswordOtp';
+import VerifyPasswordOtp from './src/VerifyPasswordOtp/VerifyPasswordOtp';
+import ChangepasswordScreen from './src/screens/ChangepasswordScreen/ChangepasswordScreen';
 global.url = 'https://www.app.gounderkudumbam.com/admin/public/api/'
 const firebaseConfig = {
   apiKey: "AIzaSyB0R-kpL3zt8o4sdd7k65CXTnsf4zZ8u1Q",
@@ -187,6 +190,9 @@ export default function App({ navigation }) {
         <stack.Screen name="Logo" component={Logo} options={{ headerShown: false }}></stack.Screen>
         <stack.Screen name="VideoScreen" component={VideoScreen} options={{ headerShown: false }}></stack.Screen>
         <stack.Screen name="ManageVideo" component={ManageVideo} options={{ headerShown: false }}></stack.Screen>
+        <stack.Screen name="VerifyPasswordOtp" component={VerifyPasswordOtp} options={{ headerShown: false }}></stack.Screen>
+        <stack.Screen name="ChangepasswordScreen" component={ChangepasswordScreen} options={{ headerShown: false }}></stack.Screen>
+
       </stack.Navigator>
     </NavigationContainer>
   );

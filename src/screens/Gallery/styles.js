@@ -88,5 +88,8 @@ export const styles = StyleSheet.create({
     ,fnt2:{
         color: 'white',
         fontSize: 11,
+    },
+    emptyText:{
+    alignSelf:'center', fontSize:15, fontWeight:'900', color:'#000'
     }
 })

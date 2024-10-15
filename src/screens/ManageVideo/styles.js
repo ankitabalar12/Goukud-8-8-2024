@@ -43,6 +43,28 @@ export const styles = StyleSheet.create({
     id: {
         marginHorizontal: 45, marginTop: 5, fontFamily: 'Montserrat-Bold', color: '#8D92A3', fontSize: 11
     },
+
+    // videoContainer: {
+    //     height:"100%",
+    //     width: '100%',
+    //     // marginVertical: 10,
+    //     backgroundColor:'yellow'
+
+    // },
+    videoWrapper: {
+        height: 900,
+        width: '100%',
+        alignSelf: 'center',
+        backgroundColor:'red',
+        marginTop:10
+    },
+
+    video:{
+        height:100,
+        width: 100,
+       
+    },
+
     alview: {
         width: 350, height: 400, alignSelf: 'center',borderWidth:0
     },
@@ -83,8 +105,8 @@ export const styles = StyleSheet.create({
         },
         overlay: {
             position: 'absolute',
-           bottom:-80, 
-           left:30,
+             bottom:-90, 
+             left:30,
             width: '100%',
             height: 150, // Must match the height of the WebView
           },
@@ -97,4 +119,8 @@ export const styles = StyleSheet.create({
             color: 'white',
             fontSize: 11,
         },
+        // videoContainer:{
+        //     height:900, width:'95%', 
+        //     backgroundColor:'pink',
+        // }
 })

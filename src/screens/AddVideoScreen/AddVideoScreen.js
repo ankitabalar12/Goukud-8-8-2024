@@ -6,6 +6,7 @@ import ReactNativeModal from 'react-native-modal';
 import { ActivityIndicator } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import WebView from 'react-native-webview';
+import { selectedUploadimg } from '../Apicall';
 
 const AddVideoScreen = ({ navigation }) => {
     // const [videoTitle, setVideoTitle] = useState(isEditing ? existingVideo.title : '');
@@ -33,7 +34,7 @@ const AddVideoScreen = ({ navigation }) => {
     const [not, setnot] = useState('');
     const [linkToDelete, setLinkToDelete] = useState('');
     const [showDeleteView, setShowDeleteView] = useState(false);
- useEffect(() => {
+    useEffect(() => {
 
         // handleVideoActions();
         getusernotification();
@@ -65,46 +66,54 @@ const AddVideoScreen = ({ navigation }) => {
         // };
     }, []); // Removed 'not' since it's not being used
 
-// useEffect(() => {
-//     const getusernotification = async () => {
-//         // Fetch user notifications logic here
-//     };
+    // useEffect(() => {
+    //     const getusernotification = async () => {
+    //         // Fetch user notifications logic here
+    //     };
 
-//     const getuservideo = async () => {
-//         // Fetch user videos logic here
-//     };
+    //     const getuservideo = async () => {
+    //         // Fetch user videos logic here
+    //     };
 
-//     const handleVideoActions = async () => {
-//         try {
-//             if (selectdoption !== null) {
-//                 if (selectdoption) {
-//                     // Call addvideos logic if selectdoption is true
-//                     // await addvideos();
-//                 } else {
-//                     // Call UpdateVideo logic if selectdoption is false
-//                     // await UpdateVideo();
-//                 }
-//                 // Fetch user videos again after adding or updating
-//                 await getuservideo();
-//             }
-//         } catch (error) {
-//             console.error('Error handling video actions:', error);
-//         }
-//     };
+    //     const handleVideoActions = async () => {
+    //         try {
+    //             if (selectdoption !== null) {
+    //                 if (selectdoption) {
+    //                     // Call addvideos logic if selectdoption is true
+    //                     // await addvideos();
+    //                 } else {
+    //                     // Call UpdateVideo logic if selectdoption is false
+    //                     // await UpdateVideo();
+    //                 }
+    //                 // Fetch user videos again after adding or updating
+    //                 await getuservideo();
+    //             }
+    //         } catch (error) {
+    //             console.error('Error handling video actions:', error);
+    //         }
+    //     };
 
-//     // Listen to screen focus to trigger functions when the screen is focused
-//     const focusListener = navigation.addListener('focus', () => {
-//         handleVideoActions();
-//         getusernotification();
-//     });
+    //     // Listen to screen focus to trigger functions when the screen is focused
+    //     const focusListener = navigation.addListener('focus', () => {
+    //         handleVideoActions();
+    //         getusernotification();
+    //     });
 
-//     // Cleanup listener on component unmount
-//     return () => {
-//         focusListener();  // Remove the listener to avoid memory leaks
-//     };
-// }, [navigation, selectdoption]);
+    //     // Cleanup listener on component unmount
+    //     return () => {
+    //         focusListener();  // Remove the listener to avoid memory leaks
+    //     };
+    // }, [navigation, selectdoption]);
 
- 
+    const deleteRow = (id) => {
+        const index = videoUrls.findIndex(item => item.id === id);
+        console.log("index >>", index)
+        if (index !== -1) {
+          const newData = [...videoUrls];
+          newData.splice(index, 1);
+          setVideoUrls(newData);
+        }
+      };
 
     const handleAddLink = () => {
         setVideoLinks([...videoLinks, '']); // Add an empty string for a new input
@@ -114,10 +123,11 @@ const AddVideoScreen = ({ navigation }) => {
     const handleLinkChange = (text, index) => {
         const updatedLinks = [...videoLinks];
         updatedLinks[index] = text;
+        newLinks[index] = text;
         setVideoLinks(updatedLinks);
     };
 
-   
+
 
 
 
@@ -209,7 +219,8 @@ const AddVideoScreen = ({ navigation }) => {
                     setAllLinks3('');
                     navigation.navigate('ManageVideo');
                 } else {
-                    // Handle error here
+                    
+                     Alert.alert("Add the full ditails.");
                 }
             } else {
                 Alert.alert("Error", "No user data found");
@@ -270,7 +281,7 @@ const AddVideoScreen = ({ navigation }) => {
         setLoading(false);
     };
 
-    
+
 
 
     const UpdateVideo = async (videoId) => {
@@ -330,34 +341,43 @@ const AddVideoScreen = ({ navigation }) => {
         setAllLinks(text);
     };
 
-    const selectVideos = (callback) => {
+    const openGallery = async () => {
         const options = {
-            mediaType: 'video',
-            selectionLimit: 30,
-            includeBase64: false,
+            mediaType: 'photo',
+            includeBase64: true,
+            base64: true,
+            maxHeight: 500,
+            maxWidth: 500,
+            selectionLimit: 50 - (videoLinks?.length || 0)
         };
 
-        launchImageLibrary(options, (response) => {
-            if (response.didCancel) {
-                Alert.alert('Cancelled', 'You cancelled the video selection.');
-            } else if (response.errorCode) {
-                Alert.alert('Error', response.errorMessage);
-            } else {
-                const uris = response.assets.map(asset => asset.uri);
-                setVideoLinks(prevVideos => {
-                    const updatedVideos = [...prevVideos, ...uris];
-                    if (updatedVideos.length > 50) {
-                        Alert.alert('Limit Reached', 'You can only select up to 50 videos.');
-                        return prevVideos;
-                    } else {
-                        const updatedAllLinks = [...youtubeLinks, ...updatedVideos].join(', ');
-                        setAllLinks(updatedAllLinks);
-                        setYoutubeLinkedit(updatedAllLinks);
-                        return updatedVideos;
+        try {
+            const res = await launchImageLibrary(options);
+            if (!res.didCancel && res.assets) {
+                // Initialize an array to store the selected images
+                let images = [];
+                for (let i = 0; i < res.assets.length; i++) {
+                    const asset = res.assets[i];
+                    if (asset.fileSize > 3 * 1024 * 1024) {
+                        Alert.alert('Error', 'Image size should be within 3MB.');
+                        continue; // Skip to the next iteration
                     }
-                });
+                    const data = {
+                        base64: 'data:image/jpeg;base64,' + asset.base64,
+                    };
+                    const userpic = await selectedUploadimg(global.url + 'uploadimage', data);
+                    if (userpic.data) {
+                        images.push(userpic.data);
+                    }
+                }
+                console.log('selectedImages---', images);
+                // Update selectedImages state with the new images
+                setVideoLinks(prevImages => [...prevImages, ...images]);
             }
-        });
+        } catch (error) {
+            console.error('Error selecting images from library:', error);
+            Alert.alert('Error', 'An unexpected error occurred while selecting images.');
+        }
     };
 
     const selectVideosupdate = () => {
@@ -440,76 +460,80 @@ const AddVideoScreen = ({ navigation }) => {
                 },
                 {
                     text: 'OK',
-                    onPress: async () => {
-                        try {
-                            const result = await AsyncStorage.getItem('logindata');
-                            if (result !== null) {
-                                const screenData = JSON.parse(result);
-                                console.log('User Data:', screenData);
+                    onPress: () => {
+                        // Delay the deletion by 3 seconds
+                        setTimeout(async () => {
+                            try {
+                                const result = await AsyncStorage.getItem('logindata');
+                                if (result !== null) {
+                                    const screenData = JSON.parse(result);
+                                    console.log('User Data:', screenData);
 
-                                const url = global.url + 'deletevideo';
-                                console.log('Request URL:', url);
+                                    const url = global.url + 'deletevideo';
+                                    console.log('Request URL:', url);
 
-                                const videoIdToDelete = global.videoId_id; // Get the video ID from global state
-                                console.log('Deleting video with ID:', videoIdToDelete);
+                                    const videoIdToDelete = global.videoId_id; // Get the video ID from global state
+                                    console.log('Deleting video with ID:', videoIdToDelete);
 
-                                // Send delete request to the API
-                                const response = await fetch(url, {
-                                    method: 'POST',
-                                    headers: {
-                                        Accept: 'application/json',
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify({
-                                        id: videoIdToDelete, // Pass the ID correctly
-                                    }),
-                                });
+                                    // Send delete request to the API
+                                    const response = await fetch(url, {
+                                        method: 'POST',
+                                        headers: {
+                                            Accept: 'application/json',
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            id: videoIdToDelete, // Pass the ID correctly
+                                        }),
+                                    });
 
-                                console.log('Request Body:', JSON.stringify({ id: videoIdToDelete }));
+                                    console.log('Request Body:', JSON.stringify({ id: videoIdToDelete }));
 
-                                if (!response.ok) {
-                                    throw new Error(`Network response was not ok: ${response.status}`);
-                                }
+                                    if (!response.ok) {
+                                        throw new Error(`Network response was not ok: ${response.status}`);
+                                    }
 
-                                const responseText = await response.text();
-                                console.log('Response Text:', responseText);
+                                    const responseText = await response.text();
+                                    console.log('Response Text:', responseText);
 
-                                const json = JSON.parse(responseText);
-                                console.log('Response JSON:', json);
+                                    const json = JSON.parse(responseText);
+                                    console.log('Response JSON:', json);
 
-                                if (json.success) {
-                                    // Update state to remove deleted video URL
-                                    const currentLinks = allLinks || '';
-                                    const linkToDelete = `https://www.youtube.com/embed/${videoIdToDelete}`;
+                                    if (json.success) {
+                                        // Update state to remove deleted video URL
+                                        const currentLinks = allLinks || '';
+                                        const linkToDelete = `https://www.youtube.com/embed/${videoIdToDelete}`;
 
-                                    // Remove the first occurrence of the link to delete
-                                    const linksArray = currentLinks.split(', ').filter((link) => link !== linkToDelete);
+                                        // Remove the first occurrence of the link to delete
+                                        const linksArray = currentLinks.split(', ').filter((link) => link !== linkToDelete);
 
-                                    // Convert array back to a comma-separated string
-                                    const updatedLinks = linksArray.join(', ');
+                                        // Convert array back to a comma-separated string
+                                        const updatedLinks = linksArray.join(', ');
 
-                                    // Update the state with the new list of links
-                                    setAllLinks(updatedLinks);
+                                        // Update the state with the new list of links
+                                        setAllLinks(updatedLinks);
 
-                                    Alert.alert('Success', 'Video deleted successfully.');
+                                        Alert.alert('Success', 'Video deleted successfully.');
+                                    } else {
+                                        Alert.alert('Error', `Failed to delete the video: ${json.message || 'Unknown error'}`);
+                                    }
                                 } else {
-                                    Alert.alert('Error', `Failed to delete the video: ${json.message || 'Unknown error'}`);
+                                    Alert.alert('Error', 'No user data found.');
                                 }
-                            } else {
-                                Alert.alert('Error', 'No user data found.');
+                            } catch (error) {
+                                console.error('Error deleting video:', error);
+                                Alert.alert('Error', 'An error occurred while deleting the video.');
+                            } finally {
+                                setLoading(false);
                             }
-                        } catch (error) {
-                            console.error('Error deleting video:', error);
-                            Alert.alert('Error', 'An error occurred while deleting the video.');
-                        } finally {
-                            setLoading(false);
-                        }
+                        }, 3000); // Delay of 3000 milliseconds (3 seconds)
                     },
                 },
             ],
             { cancelable: false }
         );
     };
+
 
 
     const deleteVideo2 = async () => {
@@ -762,12 +786,17 @@ const AddVideoScreen = ({ navigation }) => {
                                                 <Text style={styles.textlinkstyle2}>Thumbnail Image</Text>
                                             </View>
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPress={deleteVideo}>
+                                        <TouchableOpacity onPress={() => deleteVideo(imgurl.id)} >
                                             <Image
                                                 source={require('../../../assets/images/delete.png')}
                                                 style={[styles.simplelineimg, { tintColor: '#BABABA' }]}
                                             />
                                         </TouchableOpacity>
+                                        {/* {loading && (
+                                            <View style={styles.loadingContainer}>
+                                                <ActivityIndicator size="large" color="#871618" />
+                                            </View>
+                                        )} */}
                                     </View>
                                 </View>
                                 <View style={styles.hetviewstylestwo}></View>
@@ -775,8 +804,8 @@ const AddVideoScreen = ({ navigation }) => {
                             </View>))}
                         </View>) : null}
                     {videoLinks.map((link, index) => (
-                        <View key={item.id}>
-                            <View  style={{ flexDirection: 'row', marginTop: 20 }}>
+                        <View >
+                            <View style={{ flexDirection: 'row', marginTop: 20 }}>
                                 <Image
                                     source={require('../../../assets/images/add.png')}
                                     style={styles.addstyleimg2}
@@ -805,7 +834,10 @@ const AddVideoScreen = ({ navigation }) => {
                                             <Text style={styles.textlinkstyle2}>Thumbnail Image</Text>
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={deleteVideo}>
+                                    <TouchableOpacity onPress={() => {
+                                        const updatedLinks = videoLinks.filter((_, i) => i !== index);
+                                        setVideoLinks(updatedLinks);
+                                    }}>
                                         <Image
                                             source={require('../../../assets/images/delete.png')}
                                             style={[styles.simplelineimg, { tintColor: '#BABABA' }]}
@@ -827,8 +859,9 @@ const AddVideoScreen = ({ navigation }) => {
                         <View>
                             <TextInput
                                 style={styles.inputtext}
-                                value={allLinks}
+                                value={allLinks.length > 20 ? `${allLinks.substring(0, 20)}...` : allLinks} 
                                 placeholder="YouTube video link"
+                                //value={allLinks}
                                 // keyboardType='number'
                                 onChangeText={handleTextChange}
                                 placeholderTextColor="#888"
@@ -837,7 +870,7 @@ const AddVideoScreen = ({ navigation }) => {
                             <View style={styles.heightview} />
                         </View>
                         <View style={styles.flexrowdeletebutton}>
-                            <TouchableOpacity onPress={() => selectVideos()} style={[styles.deletestyleview, { marginLeft: 10 }]}>
+                            <TouchableOpacity onPress={() => openGallery()} style={[styles.deletestyleview, { marginLeft: 10 }]}>
                                 <View style={styles.delletextstyle}>
                                     <Image
                                         source={require('../../../assets/images/add.png')}
@@ -950,9 +983,9 @@ const AddVideoScreen = ({ navigation }) => {
 
                     <View style={{ marginTop: '50%' }}></View>
                 </ScrollView>
-                {loading && <ActivityIndicator size="large" color="#871618" />}
+                {/* {loading && <ActivityIndicator size="large" color="#871618" />} */}
             </View>) : null}
-            {selectdoption == '2' ? (<View>
+            {/* {selectdoption == '2' ? (<View>
 
                 <View style={styles.flexrowviewadd}>
                     <TouchableOpacity onPress={() => {
@@ -1084,7 +1117,7 @@ const AddVideoScreen = ({ navigation }) => {
                 {loading && <ActivityIndicator size="large" color="#871618" />}
 
 
-            </View>) : null}
+            </View>) : null} */}
 
 
         </View>
